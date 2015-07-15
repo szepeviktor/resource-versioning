@@ -1,31 +1,53 @@
-# Sucuri Scanner custom settings
+# Resource Versioning
 
-Custom settings for [Sucuri Scanner](https://wordpress.org/plugins/sucuri-scanner/) plugin.
+Turn Query String Parameters into file revision numbers.
 
-### Restrict the admin interface to a specific user
+> It’s important to make resources (images, scripts, stylesheets, etc.) cacheable.
 
-Copy this to your wp-config.php
+[Steve Souders](http://www.stevesouders.com/blog/2008/08/23/revving-filenames-dont-use-querystring/)
 
-```php
-define( 'O1_SUCURI_USER', 'your-username' );
+It is much easier to use a CDN without Query String Parameters.
+This plugins alters only local resources' URL-s.
+The `ver` Query String Parameter will be inserted into the filename.
+
+`jquery.min.js?ver=1.10` becomes `jquery.min.110.js`
+
+To "revert" that change add this line to your nginx config:
+
+```nginx
+server {
+    rewrite ^(.+)\.\d\d+\.(js|css|png|jpg|jpeg|gif|ico)$ $1.$2 last;
+}
 ```
 
-### Hide Sucuri WAF related UI elements
+Or to your Apache config or `.htaccess` file.
 
-The WAF menu and tab are not useful for users without WAF subscription.
-"Website Firewall protection" postbox on Hardening tab should be also hidden.
+```apache
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.+)\.\d\d+\.(js|css|png|jpg|jpeg|gif|ico)$ $1.$2 [NC,L]
+```
 
-### Prevent DNS queries on each page load
+### Testing the plugin before live usage
 
-Sucuri plugin [looks up](https://plugins.trac.wordpress.org/changeset/1194834)
-each visitor's IP address. Defining `NOT_USING_CLOUDPROXY` prevents this behavior.
+You can test the plugin by replacing `add_filter()` calls with these lines
 
-### Hide Sucuri ads
+```php
+require_once( dirname( dirname( dirname( dirname( __FILE__ ) ) ) ) . '/wp-load.php' );
+wp();
+echo o1_src_revving( $argv[1] ) . PHP_EOL;
+```
 
-Ads in the Sucuri Scanner plugin could be hidden manually.
-This plugin hides the ads.
+Then start it from CLI: `php revving.php <TEST-URL>`
 
-### Set data store path.
+### How to remove all Query String Parameters from resources?
 
-Sucuri Scanner's default datastore path is in the uploads directory.
-This plugin sets the datastore path to `wp-content/sucuri`.
+Poorly written plugins and themes may add unwanted Query String Parameters.
+For example `?rev=4.10`.
+
+To drop all these parameters copy this into your wp-config.php
+
+```php
+define( 'O1_REMOVE_ALL_QARGS', true );
+```
