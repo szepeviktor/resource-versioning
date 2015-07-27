@@ -16,7 +16,10 @@ To "revert" that change add this line to your nginx config:
 
 ```nginx
 server {
-    rewrite ^(.+)\.\d\d+\.(js|css|png|jpg|jpeg|gif|ico)$ $1.$2 last;
+    location ~ ^(.+)\.\d\d+\.(js|css|png|jpg|jpeg|gif|ico)$ {
+        #try_files $uri $1.$2 /index.php?$args;
+        try_files $uri $1.$2 =404;
+    }
 }
 ```
 

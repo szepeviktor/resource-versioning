@@ -19,12 +19,15 @@ It is much easier to use a CDN without Query String Parameters.
 This plugins alters only local resources' URL-s.
 The `ver` Query String Parameter will be inserted into the filename.
 
-`jquery.min.js?ver=1.10` becomes `jquery.min.110.js`
+For example `jquery.min.js?ver=1.10` becomes `jquery.min.110.js`.
 
 To "revert" that change add this line to your nginx config:
 
 `server {
-    rewrite ^(.+)\.\d\d+\.(js|css|png|jpg|jpeg|gif|ico)$ $1.$2 last;
+    location ~ ^(.+)\.\d\d+\.(js|css|png|jpg|jpeg|gif|ico)$ {
+        #try_files $uri $1.$2 /index.php?$args;
+        try_files $uri $1.$2 =404;
+    }
 }
 `
 
