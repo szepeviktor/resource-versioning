@@ -2,14 +2,29 @@
 /*
 Plugin Name: Resource Versioning
 Description: Turn Query String Parameters into file revision numbers.
-Version: 0.1.0
+Version: 0.1.1
 Author: Viktor Szépe
-Author URI: https://github.com/szepeviktor?tab=activity
 License: GNU General Public License (GPL) version 2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 GitHub Plugin URI: https://github.com/szepeviktor/resource-versioning
 Options: O1_REMOVE_ALL_QARGS
 */
+
+/**
+ * Trigger fail2ban
+ */
+if ( ! function_exists( 'add_filter' ) ) {
+    error_log( 'Break-in attempt detected: revving_direct_access '
+        . addslashes( @$_SERVER['REQUEST_URI'] )
+    );
+    ob_get_level() && ob_end_clean();
+    if ( ! headers_sent() ) {
+        header( 'Status: 403 Forbidden' );
+        header( 'HTTP/1.1 403 Forbidden', true, 403 );
+        header( 'Connection: Close' );
+    }
+    exit;
+}
 
 /**
  * Filter script and style source URL-s.
@@ -27,7 +42,13 @@ add_filter( 'style_loader_src', 'o1_src_revving' );
 function o1_src_revving( $src ) {
 
     // Check for external URL
-    if ( 0 !== strpos( $src, site_url() ) ) {
+    $siteurl_noscheme = str_replace( array( 'http:', 'https:' ), '', site_url() );
+    $contenturl_noscheme = str_replace( array( 'http:', 'https:' ), '', WP_CONTENT_URL );
+    if ( ! o1_starts_with( $src, site_url() )
+        && ! o1_starts_with( $src, $siteurl_noscheme )
+        && ! o1_starts_with( $src, WP_CONTENT_URL )
+        && ! o1_starts_with( $src, $contenturl_noscheme )
+    ) {
         return $src;
     }
 
@@ -70,4 +91,18 @@ function o1_src_revving( $src ) {
         substr( $parts[0], $pos + 1 ),
         $new_query ? '?' . $new_query : ''
     );
+}
+
+/**
+ * Return if haystack starts with needle.
+ *
+ * @param string $haystack The haystack.
+ * @param string $needle   The needle.
+ *
+ * @return boolean Whether starts with or not.
+ */
+function o1_starts_with( $haystack, $needle ) {
+
+     $length = strlen( $needle );
+     return ( $needle === substr( $haystack, 0, $length ) );
 }

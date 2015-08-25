@@ -3,8 +3,8 @@ Contributors: szepe.viktor
 Donate link: https://szepe.net/wp-donate/
 Tags: file, resource, apache, nginx, varnish, cache, CSS, JS, JavaScript, CDN, content delivery network, optimization, performance
 Requires at least: 4.0
-Tested up to: 4.2.2
-Stable tag: 0.1.0
+Tested up to: 4.3
+Stable tag: 0.1.1
 License: GPLv2
 
 Turn Query String Parameters into file revision numbers.
@@ -21,9 +21,10 @@ The `ver` Query String Parameter will be inserted into the filename.
 
 For example `jquery.min.js?ver=1.10` becomes `jquery.min.110.js`.
 
-To "revert" that change add this line to your nginx config:
+To reverse this in the web server add this line to your nginx config:
 
-`server {
+`
+server {
     location ~ ^(.+)\.\d\d+\.(js|css|png|jpg|jpeg|gif|ico)$ {
         #try_files $uri $1.$2 /index.php?$args;
         try_files $uri $1.$2 =404;
@@ -31,9 +32,10 @@ To "revert" that change add this line to your nginx config:
 }
 `
 
-Or to your Apache config or `.htaccess` file.
+Or to your Apache configuration or `.htaccess` file.
 
-`RewriteEngine On
+`
+RewriteEngine On
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.+)\.\d\d+\.(js|css|png|jpg|jpeg|gif|ico)$ $1.$2 [NC,L]
@@ -43,7 +45,8 @@ RewriteRule ^(.+)\.\d\d+\.(js|css|png|jpg|jpeg|gif|ico)$ $1.$2 [NC,L]
 
 You can test the plugin by replacing `add_filter()` calls with these lines
 
-`require_once( dirname( dirname( dirname( dirname( __FILE__ ) ) ) ) . '/wp-load.php' );
+`
+require_once( dirname( dirname( dirname( dirname( __FILE__ ) ) ) ) . '/wp-load.php' );
 wp();
 echo o1_src_revving( $argv[1] ) . PHP_EOL;
 `
@@ -68,11 +71,16 @@ This section describes how to install the plugin and get it working.
 Poorly written plugins and themes may add unwanted Query String Parameters.
 For example `?rev=4.10`.
 
-To drop all these parameters copy this into your wp-config.php
+To drop all these parameters copy this into your `wp-config.php`:
 
-`define( 'O1_REMOVE_ALL_QARGS', true );`
+`
+define( 'O1_REMOVE_ALL_QARGS', true );
+`
 
 == Changelog ==
+
+= 0.1.1 =
+* FIX: Non-external URL detection.
 
 = 0.1.0 =
 * Initial relase without multisite support.
