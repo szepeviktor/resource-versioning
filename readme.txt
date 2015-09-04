@@ -4,7 +4,7 @@ Donate link: https://szepe.net/wp-donate/
 Tags: file, resource, apache, nginx, varnish, cache, CSS, JS, JavaScript, CDN, content delivery network, optimization, performance
 Requires at least: 4.0
 Tested up to: 4.3
-Stable tag: 0.1.1
+Stable tag: 0.1.2
 License: GPLv2
 
 Turn Query String Parameters into file revision numbers.
@@ -79,8 +79,11 @@ define( 'O1_REMOVE_ALL_QARGS', true );
 
 == Changelog ==
 
+= 0.1.2 =
+* FIX: Don't run on admin.
+
 = 0.1.1 =
-* FIX: Non-external URL detection.
+* FIX: External URL detection.
 
 = 0.1.0 =
 * Initial relase without multisite support.

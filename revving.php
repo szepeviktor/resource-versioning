@@ -2,7 +2,7 @@
 /*
 Plugin Name: Resource Versioning
 Description: Turn Query String Parameters into file revision numbers.
-Version: 0.1.1
+Version: 0.1.2
 Author: Viktor Szépe
 License: GNU General Public License (GPL) version 2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -41,13 +41,15 @@ add_filter( 'style_loader_src', 'o1_src_revving' );
  */
 function o1_src_revving( $src ) {
 
-    // Check for external URL
+    // Check for external or admin URL
     $siteurl_noscheme = str_replace( array( 'http:', 'https:' ), '', site_url() );
     $contenturl_noscheme = str_replace( array( 'http:', 'https:' ), '', WP_CONTENT_URL );
-    if ( ! o1_starts_with( $src, site_url() )
-        && ! o1_starts_with( $src, $siteurl_noscheme )
-        && ! o1_starts_with( $src, WP_CONTENT_URL )
-        && ! o1_starts_with( $src, $contenturl_noscheme )
+    if ( is_admin()
+        || ( ! o1_starts_with( $src, site_url() )
+            && ! o1_starts_with( $src, $siteurl_noscheme )
+            && ! o1_starts_with( $src, WP_CONTENT_URL )
+            && ! o1_starts_with( $src, $contenturl_noscheme )
+        )
     ) {
         return $src;
     }
