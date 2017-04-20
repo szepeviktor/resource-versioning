@@ -37,7 +37,7 @@ RewriteRule ^(.+)\.\d\d+\.(js|css|png|jpg|jpeg|gif|ico)$ $1.$2 [NC,L]
 You can test the plugin by replacing `add_filter()` calls with these lines
 
 ```php
-require_once( dirname( dirname( dirname( dirname( __FILE__ ) ) ) ) . '/wp-load.php' );
+require_once dirname( dirname( dirname( dirname( __FILE__ ) ) ) ) . '/wp-load.php';
 wp();
 echo o1_src_revving( $argv[1] ) . PHP_EOL;
 ```

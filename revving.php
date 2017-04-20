@@ -2,7 +2,7 @@
 /*
 Plugin Name: Resource Versioning
 Description: Turn Query String Parameters into file revision numbers.
-Version: 0.1.2
+Version: 0.1.3
 Author: Viktor Szépe
 License: GNU General Public License (GPL) version 2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -15,7 +15,7 @@ Options: O1_REMOVE_ALL_QARGS
  */
 if ( ! function_exists( 'add_filter' ) ) {
     error_log( 'Break-in attempt detected: revving_direct_access '
-        . addslashes( @$_SERVER['REQUEST_URI'] )
+        . addslashes( isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : '' )
     );
     ob_get_level() && ob_end_clean();
     if ( ! headers_sent() ) {
@@ -43,11 +43,11 @@ function o1_src_revving( $src ) {
 
     // Check for external or admin URL
     $siteurl_noscheme = str_replace( array( 'http:', 'https:' ), '', site_url() );
-    $contenturl_noscheme = str_replace( array( 'http:', 'https:' ), '', WP_CONTENT_URL );
+    $contenturl_noscheme = str_replace( array( 'http:', 'https:' ), '', content_url() );
     if ( is_admin()
         || ( ! o1_starts_with( $src, site_url() )
             && ! o1_starts_with( $src, $siteurl_noscheme )
-            && ! o1_starts_with( $src, WP_CONTENT_URL )
+            && ! o1_starts_with( $src, content_url() )
             && ! o1_starts_with( $src, $contenturl_noscheme )
         )
     ) {
@@ -57,7 +57,7 @@ function o1_src_revving( $src ) {
     // Separate query string from the URL
     $parts = preg_split( '/\?/', $src, 2 );
 
-    // Find version in query
+    // Find version in query string
     parse_str( $parts[1], $kwargs );
     if ( empty( $kwargs['ver'] ) ) {
         return $src;
@@ -106,5 +106,6 @@ function o1_src_revving( $src ) {
 function o1_starts_with( $haystack, $needle ) {
 
      $length = strlen( $needle );
-     return ( $needle === substr( $haystack, 0, $length ) );
+
+     return ( substr( $haystack, 0, $length ) === $needle );
 }
