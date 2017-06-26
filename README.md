@@ -34,12 +34,12 @@ RewriteRule ^(.+)\.\d\d+\.(js|css|png|jpg|jpeg|gif|ico)$ $1.$2 [NC,L]
 
 ### Testing the plugin before live usage
 
-You can test the plugin by replacing `add_filter()` calls with these lines
+You can test the plugin by replacing the two `add_filter()` calls with this
 
 ```php
 require_once dirname( dirname( dirname( dirname( __FILE__ ) ) ) ) . '/wp-load.php';
 wp();
-echo o1_src_revving( $argv[1] ) . PHP_EOL;
+echo o1_revving_src( $argv[1] ) . PHP_EOL;
 ```
 
 Then start it from CLI: `php revving.php <TEST-URL>`

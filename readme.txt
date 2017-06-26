@@ -3,8 +3,8 @@ Contributors: szepe.viktor
 Donate link: https://szepe.net/wp-donate/
 Tags: file, resource, apache, nginx, varnish, cache, CSS, JS, JavaScript, CDN, content delivery network, optimization, performance
 Requires at least: 4.0
-Tested up to: 4.7.3
-Stable tag: 0.1.3
+Tested up to: 4.8
+Stable tag: 0.2.0
 License: GPLv2
 
 Turn Query String Parameters into file revision numbers.
@@ -43,12 +43,12 @@ RewriteRule ^(.+)\.\d\d+\.(js|css|png|jpg|jpeg|gif|ico)$ $1.$2 [NC,L]
 
 = Testing the plugin before live usage =
 
-You can test the plugin by replacing `add_filter()` calls with these lines
+You can test the plugin by replacing the two `add_filter()` calls with this
 
 `
 require_once( dirname( dirname( dirname( dirname( __FILE__ ) ) ) ) . '/wp-load.php' );
 wp();
-echo o1_src_revving( $argv[1] ) . PHP_EOL;
+echo o1_revving_src( $argv[1] ) . PHP_EOL;
 `
 
 Then start it from CLI: `php revving.php <TEST-URL>`
@@ -78,6 +78,10 @@ define( 'O1_REMOVE_ALL_QARGS', true );
 `
 
 == Changelog ==
+
+= 0.2.0 =
+* Strengthen stability.
+* Support cdn-ified URL-s.
 
 = 0.1.3 =
 * FIX: Use proper WordPress function for content URL.

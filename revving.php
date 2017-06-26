@@ -2,12 +2,12 @@
 /*
 Plugin Name: Resource Versioning
 Description: Turn Query String Parameters into file revision numbers.
-Version: 0.1.3
+Version: 0.2.0
 Author: Viktor Szépe
 License: GNU General Public License (GPL) version 2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 GitHub Plugin URI: https://github.com/szepeviktor/resource-versioning
-Options: O1_REMOVE_ALL_QARGS
+Constants: O1_REMOVE_ALL_QARGS
 */
 
 /**
@@ -29,8 +29,8 @@ if ( ! function_exists( 'add_filter' ) ) {
 /**
  * Filter script and style source URL-s.
  */
-add_filter( 'script_loader_src', 'o1_src_revving' );
-add_filter( 'style_loader_src', 'o1_src_revving' );
+add_filter( 'script_loader_src', 'o1_revving_src' );
+add_filter( 'style_loader_src', 'o1_revving_src' );
 
 /**
  * Insert version into filename from query string.
@@ -39,17 +39,22 @@ add_filter( 'style_loader_src', 'o1_src_revving' );
  *
  * @return string      Versioned URL
  */
-function o1_src_revving( $src ) {
+function o1_revving_src( $src ) {
+
+    if ( is_admin() ) {
+        return $src;
+    }
 
     // Check for external or admin URL
     $siteurl_noscheme = str_replace( array( 'http:', 'https:' ), '', site_url() );
     $contenturl_noscheme = str_replace( array( 'http:', 'https:' ), '', content_url() );
-    if ( is_admin()
-        || ( ! o1_starts_with( $src, site_url() )
-            && ! o1_starts_with( $src, $siteurl_noscheme )
-            && ! o1_starts_with( $src, content_url() )
-            && ! o1_starts_with( $src, $contenturl_noscheme )
-        )
+    // Support cdn-ified URL-s
+    $contenturl_cdn = apply_filters( 'tiny_cdn', content_url() );
+    if ( ! o1_revving_starts_with( $src, site_url() )
+        && ! o1_revving_starts_with( $src, $siteurl_noscheme )
+        && ! o1_revving_starts_with( $src, content_url() )
+        && ! o1_revving_starts_with( $src, $contenturl_noscheme )
+        && ! o1_revving_starts_with( $src, $contenturl_cdn )
     ) {
         return $src;
     }
@@ -57,7 +62,13 @@ function o1_src_revving( $src ) {
     // Separate query string from the URL
     $parts = preg_split( '/\?/', $src, 2 );
 
+    // No query string
+    if ( ! isset( $parts[1] ) ) {
+        return $src;
+    }
+
     // Find version in query string
+    $kwargs = array();
     parse_str( $parts[1], $kwargs );
     if ( empty( $kwargs['ver'] ) ) {
         return $src;
@@ -67,7 +78,7 @@ function o1_src_revving( $src ) {
     $ver = preg_replace( '/[^0-9]/', '', $kwargs['ver'] );
     // We need at least two digits for the rewrite rule
     if ( strlen( $ver ) < 2 ) {
-        $ver = '0' . $ver;
+        $ver = '00' . $ver;
     }
 
     // Find where to insert version
@@ -103,7 +114,7 @@ function o1_src_revving( $src ) {
  *
  * @return boolean Whether starts with or not.
  */
-function o1_starts_with( $haystack, $needle ) {
+function o1_revving_starts_with( $haystack, $needle ) {
 
      $length = strlen( $needle );
 
