@@ -2,7 +2,7 @@
 /*
 Plugin Name: Resource Versioning
 Description: Turn Query String Parameters into file revision numbers.
-Version: 0.2.0
+Version: 0.3.0
 Author: Viktor Szépe
 License: GNU General Public License (GPL) version 2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -35,9 +35,9 @@ add_filter( 'style_loader_src', 'o1_revving_src' );
 /**
  * Insert version into filename from query string.
  *
- * @param string $src  Original URL
+ * @param string $src Original URL
  *
- * @return string      Versioned URL
+ * @return string     Versioned URL
  */
 function o1_revving_src( $src ) {
 
@@ -45,17 +45,22 @@ function o1_revving_src( $src ) {
         return $src;
     }
 
-    // Check for external or admin URL
+    // Only operate on known URL-s
     $siteurl_noscheme = str_replace( array( 'http:', 'https:' ), '', site_url() );
     $contenturl_noscheme = str_replace( array( 'http:', 'https:' ), '', content_url() );
     // Support cdn-ified URL-s
     $contenturl_cdn = apply_filters( 'tiny_cdn', content_url() );
-    if ( ! o1_revving_starts_with( $src, site_url() )
-        && ! o1_revving_starts_with( $src, $siteurl_noscheme )
-        && ! o1_revving_starts_with( $src, content_url() )
-        && ! o1_revving_starts_with( $src, $contenturl_noscheme )
-        && ! o1_revving_starts_with( $src, $contenturl_cdn )
-    ) {
+    $contenturl_cdn_noscheme = str_replace( array( 'http:', 'https:' ), '', $contenturl_cdn );
+
+    $urls = array(
+        site_url(),
+        $siteurl_noscheme,
+        content_url(),
+        $contenturl_noscheme,
+        $contenturl_cdn,
+        $contenturl_cdn_noscheme,
+    );
+    if ( ! o1_revving_starts_with_array( $src, $urls ) ) {
         return $src;
     }
 
@@ -63,7 +68,7 @@ function o1_revving_src( $src ) {
     $parts = preg_split( '/\?/', $src, 2 );
 
     // No query string
-    if ( ! isset( $parts[1] ) ) {
+    if ( empty( $parts[1] ) ) {
         return $src;
     }
 
@@ -119,4 +124,24 @@ function o1_revving_starts_with( $haystack, $needle ) {
      $length = strlen( $needle );
 
      return ( substr( $haystack, 0, $length ) === $needle );
+}
+
+/**
+ * Return if haystack starts with any needle.
+ *
+ * @param string $haystack     The haystack.
+ * @param array  $needle_array The needles.
+ *
+ * @return boolean Whether any element starts with or not.
+ */
+function o1_revving_starts_with_array( $haystack, $needle_array ) {
+
+    foreach( $needle_array as $needle ) {
+        if ( o1_revving_starts_with( $haystack, $needle ) ) {
+
+            return true;
+        }
+    }
+
+    return false;
 }

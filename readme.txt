@@ -3,8 +3,8 @@ Contributors: szepe.viktor
 Donate link: https://szepe.net/wp-donate/
 Tags: file, resource, apache, nginx, varnish, cache, CSS, JS, JavaScript, CDN, content delivery network, optimization, performance
 Requires at least: 4.0
-Tested up to: 4.8
-Stable tag: 0.2.0
+Tested up to: 4.9.7
+Stable tag: 0.3.0
 License: GPLv2
 
 Turn Query String Parameters into file revision numbers.
@@ -78,6 +78,10 @@ define( 'O1_REMOVE_ALL_QARGS', true );
 `
 
 == Changelog ==
+
+= 0.3.0 =
+* Support cdn-ified URL-s without protocol schema.
+* More structured code.
 
 = 0.2.0 =
 * Strengthen stability.
